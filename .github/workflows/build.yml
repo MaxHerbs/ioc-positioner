@@ -30,7 +30,6 @@ jobs:
     env:
       TAG: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}${{ matrix.extension }}
     steps:
-
       - name: Lowercase Owner
         run: |
           echo "TAG=${TAG_uc,,}" >>${GITHUB_ENV}
@@ -103,9 +102,14 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
     runs-on: ubuntu-latest
 
+    steps:
+      - name: lower-case-name
+        run: |
+          echo "lower_case_owner=${github.repository_owner,,}" >>${GITHUB_ENV}
+
     # this job runs in the native developer container we just made
     container:
-      image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}-developer:${{ github.ref_name }}
+      image: ghcr.io/${{ env.lower_case_owner }}/${{ github.event.repository.name }}-developer:${{ github.ref_name }}
 
     steps:
       - name: generate-schema
