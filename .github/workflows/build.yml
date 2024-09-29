@@ -37,6 +37,14 @@ jobs:
         env:
           TAG_uc: ${{ env.TAG }}
 
+      - name: Lowercase repo ownser
+        run: |
+          echo "OWNER=${github.repository_owner,,}" >>${GITHUB_ENV}
+        env:
+          OWNER: ${{ env.OWNER }}
+
+
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -105,14 +113,9 @@ jobs:
 
     # this job runs in the native developer container we just made
     container:
-      image: ${{ env.CONTAINER_IMAGE }}
+      image: ghcr.io/${{ env.OWNER }}/${{ github.event.repository.name }}-developer:${{ github.ref_name }}
 
     steps:
-      - name: Convert repository owner to lowercase
-        run: echo "REPO_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-
-
       - name: generate-schema
         run: |
           ibek ioc generate-schema --output ibek.ioc.schema.json
