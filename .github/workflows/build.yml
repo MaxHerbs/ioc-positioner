@@ -103,10 +103,22 @@ jobs:
     if: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
     runs-on: ubuntu-latest
 
+    steps:
+      # Convert repository owner to lowercase
+      - name: Convert repository owner to lowercase
+        id: lowercase_repo_owner
+        run: echo "REPO_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      # Define the container image with lowercase repository owner
+      - name: Set container image
+        run: echo "CONTAINER_IMAGE=ghcr.io/${{ env.REPO_OWNER }}/${{ github.event.repository.name }}-developer:${{ github.ref_name }}" >> $GITHUB_ENV
+
+
+
     # this job runs in the native developer container we just made
     container:
-      image: ghcr.io/${{ github.repository_owner.toLower() }}/${{ github.event.repository.name }}-developer:${{ github.ref_name }}
-
+      image: ${{ env.CONTAINER_IMAGE }}
+      
     steps:
       - name: generate-schema
         run: |
